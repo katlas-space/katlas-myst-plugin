@@ -1,25 +1,88 @@
 import argparse
 import sys
 import json
-from .mermaid import main as mermaid_main
+import os
+
+from .core.config import load_config, log
+from .core.environment import check_environment
+from .plugins.mermaid.main import run_mermaid_transform
+
+# Definition of the plugin capabilities
+PLUGIN_SPEC = {
+    "name": "Katlas MyST Plugin",
+    "directives": [
+        {
+            "name": "ktl:mermaid",
+            "doc": "Mermaid diagram directive",
+            "body": {"type": "string"},
+            "arg": {"type": "string"}
+        }
+    ],
+    "transforms": [
+        {
+            "name": "katlas-mermaid",
+            "stage": "document"
+        }
+    ]
+}
 
 def main():
-    parser = argparse.ArgumentParser(description="Katlas MyST Plugin CLI")
-    subparsers = parser.add_subparsers(dest="command", help="Sub-commands")
-
-    # Mermaid Subcommand
-    mermaid_parser = subparsers.add_parser("mermaid", help="Mermaid transformation")
-    mermaid_parser.add_argument("--transform", action="store_true")
-    mermaid_parser.add_argument("--format", default="json")
-
-    args, unknown = parser.parse_known_args()
+    parser = argparse.ArgumentParser()
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("--transform") 
+    group.add_argument("--directive") 
+    parser.add_argument("--format", default="json")
     
-    if args.command == "mermaid":
-        # Remove 'mermaid' from argv so mermaid.py sees [--transform]
-        sys.argv.pop(1)
-        mermaid_main()
+    args, unknown = parser.parse_known_args()
+
+    # 1. Directive Handling (stdin -> stdout)
+    if args.directive == 'ktl:mermaid':
+        try:
+            input_data = sys.stdin.read()
+            if input_data.strip():
+                data = json.loads(input_data)
+                # Return a generic 'mermaid' node
+                node = {
+                    "type": "mermaid",
+                    "value": data.get("body", "")
+                }
+                print(json.dumps([node]))
+            else:
+                 print(json.dumps([]))
+        except Exception as e:
+            log(f"Error in directive: {e}")
+            sys.exit(1)
+
+    # 2. Transform Handling (stdin -> stdout)
+    elif args.transform:
+        # Load global config once
+        config = load_config()
+        
+        # Verify environment (pass the repo root if we can infer it, or just rely on CWD/Config)
+        # Using CWD is usually fine for the project config.
+        # But for environment.yml, likely next to myst.yml
+        check_environment(config, base_path=os.getcwd())
+
+        try:
+            input_data = sys.stdin.read()
+            if input_data.strip():
+                data = json.loads(input_data)
+                
+                if args.transform == 'katlas-mermaid':
+                    result = run_mermaid_transform(data, config)
+                    print(json.dumps(result))
+                else:
+                    # Unknown transform
+                    print(json.dumps(data))
+            else:
+                pass
+        except Exception as e:
+            log(f"Critical Error during transform: {e}")
+            sys.exit(1)
+            
+    # 3. Spec Output (default)
     else:
-        parser.print_help()
+        print(json.dumps(PLUGIN_SPEC))
 
 if __name__ == "__main__":
     main()

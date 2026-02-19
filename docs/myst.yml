@@ -1,0 +1,10 @@
+project:
+  id: katlas-myst-plugin-docs
+  title: Katlas MyST Plugin Documentation
+  authors:
+    - name: Katlas Team
+  version: 0.1.0
+
+site:
+  options:
+    style: ../python/katlas-myst-plugin/src/katlas_myst_plugin/plugins/mermaid/assets/ktl-mermaid.css

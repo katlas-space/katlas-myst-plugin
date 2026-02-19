@@ -215,7 +215,8 @@ def load_global_mermaid_config(config_path=None):
     try:
         # Try relative path first (dev mode)
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        default_path = os.path.join(script_dir, "static", "default_mermaid_config.yml")
+        # Adjusted path for new structure: ../../../static? No, assets are now in assets/
+        default_path = os.path.join(script_dir, "assets", "default_mermaid_config.yml")
         
         if os.path.exists(default_path):
              with open(default_path, 'r') as f:

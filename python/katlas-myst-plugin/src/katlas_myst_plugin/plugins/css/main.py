@@ -9,7 +9,8 @@ def get_css_content():
         # But since we are running via script import in development, 
         # let's try relative path from this file first.
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        css_path = os.path.join(current_dir, "static", "ktl-style.css")
+        # ../mermaid/assets/ktl-mermaid.css
+        css_path = os.path.join(current_dir, "..", "mermaid", "assets", "ktl-mermaid.css")
         
         if os.path.exists(css_path):
             with open(css_path, "r", encoding="utf-8") as f:

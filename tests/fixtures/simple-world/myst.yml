@@ -4,11 +4,11 @@ project:
   title: Simple World Fixture
   plugins:
     # JavaScript Plugin (Config, Widgets)
-    - type: javascript
-      path: ../../../ktl-myst-plugin.mjs
+    # - type: javascript
+    #   path: ../../../wrappers/ktl-myst-plugin.mjs
     # Python Plugin (Mermaid, Transforms)
     - type: executable
-      path: ../../../ktl-myst-plugin.py
+      path: ../../../wrappers/ktl-myst-plugin.py
 site:
   title: Simple World
   options:
