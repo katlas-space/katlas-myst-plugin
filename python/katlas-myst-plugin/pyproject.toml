@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "katlas-myst-plugin"
+version = "0.1.0"
+description = "Katlas MyST Plugin Python support"
+authors = [{name = "Katlas Team", email = "dev@katlas.io"}]
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "pyyaml",
+    "jsonschema"
+]
+
+[project.scripts]
+katlas-myst-plugin = "katlas_myst_plugin.cli:main"
+
+
+[project.optional-dependencies]
+dev = [
+    "pytest"
+]
+
+[tool.setuptools.package-data]
+"katlas_myst_plugin" = ["static/*"]

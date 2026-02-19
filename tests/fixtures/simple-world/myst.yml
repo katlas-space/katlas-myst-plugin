@@ -1,0 +1,20 @@
+version: 1
+project:
+  id: simple-world
+  title: Simple World Fixture
+  plugins:
+    # JavaScript Plugin (Config, Widgets)
+    - type: javascript
+      path: ../../../ktl-myst-plugin.mjs
+    # Python Plugin (Mermaid, Transforms)
+    - type: executable
+      path: ../../../ktl-myst-plugin.py
+site:
+  title: Simple World
+  options:
+    style: ./ktl-style.css
+    html: true
+    unsafe: true
+  projects:
+    - slug: index
+      path: ./

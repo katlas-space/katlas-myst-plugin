@@ -1,0 +1,7 @@
+python:
+  environment: ktl-test-env
+  manage: auto
+diagrams:
+  mermaid:
+    enabled: true
+    global_config: mermaid-global-config.yml
