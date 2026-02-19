@@ -1,0 +1,9 @@
+# Table of contents
+# Learn more at https://mystmd.org/guide/frontmatter#table-of-contents
+version: 1
+project:
+  toc:
+    - file: index.md
+    - file: configuration.md
+    - file: architecture.md
+    - file: contributing.md

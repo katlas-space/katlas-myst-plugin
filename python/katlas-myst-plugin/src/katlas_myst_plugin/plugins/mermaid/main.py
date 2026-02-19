@@ -241,6 +241,21 @@ def run_mermaid_transform(data, full_config):
     
     mermaid_config = load_global_mermaid_config(global_config_path)
 
+    # 1.1 Merge Overrides from ktl-myst-plugin.yml
+    # The configuration in ktl-myst-plugin.yml (mermaid_plugin_config) should override defaults.
+    overrides = copy.deepcopy(mermaid_plugin_config)
+    # Remove control keys that aren't part of Mermaid config
+    if "global_config" in overrides:
+        del overrides["global_config"]
+    if "enabled" in overrides:
+        del overrides["enabled"]
+    
+    # helper deep_merge function is available in this file
+    # deep_merge(source=base, destination=override)
+    # We want overrides to win, so we merge base (mermaid_config) into overrides
+    # Then overrides becomes the new master config.
+    mermaid_config = deep_merge(mermaid_config, overrides)
+
     # 2. Extract Katlas Settings
     # Prioritize settings in mermaid-global-config.yml (under 'katlas') if merged?
     # Or keep them separate.
@@ -257,9 +272,6 @@ def run_mermaid_transform(data, full_config):
     if "children" in data:
        new_children = []
        for child in data["children"]:
-           # Log child info for debugging
-           log(f"Child node: type={child.get('type')}, name={child.get('name')}, class={child.get('class')}")
-
            # First, check if this is a ktl:mermaid directive and convert it
            processed_child = child
            if child.get("type") == "mystDirective" and child.get("name") == "ktl:mermaid":
