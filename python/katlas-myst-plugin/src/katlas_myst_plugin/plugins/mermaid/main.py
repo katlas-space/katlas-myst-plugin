@@ -164,17 +164,35 @@ def transform_nodes(node, global_config, katlas_settings):
             light_node = create_mermaid_node(node, light_run_config, "mermaid-light")
             dark_node = create_mermaid_node(node, dark_run_config, "mermaid-dark")
             
-            # Remove identifiers from the dark node
-            if "children" in dark_node and len(dark_node["children"]) > 0:
-                child = dark_node["children"][0]
-                if "identifier" in child: del child["identifier"]
-                if "label" in child: del child["label"]
-                if "html_id" in child: del child["html_id"]
-                
-            if "identifier" in dark_node: del dark_node["identifier"]
-            if "label" in dark_node: del dark_node["label"]
+            # Extract identifier to surface it to the transclusion wrapper
+            ident = node.get("identifier")
+            lbl = node.get("label")
+            html_id = node.get("html_id")
+
+            # Clean all internal identifiers so we don't duplicate them in AST
+            for target_node in [light_node, dark_node]:
+                if "identifier" in target_node: del target_node["identifier"]
+                if "label" in target_node: del target_node["label"]
+                if "html_id" in target_node: del target_node["html_id"]
+                if "children" in target_node and len(target_node["children"]) > 0:
+                    child = target_node["children"][0]
+                    if "identifier" in child: del child["identifier"]
+                    if "label" in child: del child["label"]
+                    if "html_id" in child: del child["html_id"]
             
-            return [light_node, dark_node]
+            # Create a uniform transclusion wrapper carrying the label
+            wrapper_node = {
+                "type": "container",
+                "kind": "div",
+                "class": "katlas-mermaid-dual-container",
+                "children": [light_node, dark_node]
+            }
+
+            if ident: wrapper_node["identifier"] = ident
+            if lbl: wrapper_node["label"] = lbl
+            if html_id: wrapper_node["html_id"] = html_id
+            
+            return [wrapper_node]
         else:
             single_config = copy.deepcopy(global_config)
             processed_node = create_mermaid_node(node, single_config, None)
@@ -190,16 +208,17 @@ def transform_nodes(node, global_config, katlas_settings):
     
     return [node]
 
-def load_global_mermaid_config(config_path=None):
+def load_global_mermaid_config(config_path=None, config_dir=None):
     """
     Loads Mermaid config from a file path or falls back to the default package asset.
     """
     loaded_config = {}
+    config_dir = config_dir or os.getcwd()
     
     # 1. Try User Config
     if config_path:
-        # Resolve config_path relative to CWD (Project Root)
-        abs_path = os.path.abspath(config_path)
+        # Resolve config_path relative to the config directory 
+        abs_path = os.path.abspath(os.path.join(config_dir, config_path))
         if os.path.exists(abs_path):
             try:
                 with open(abs_path, 'r') as f:
@@ -239,7 +258,8 @@ def run_mermaid_transform(data, full_config):
     mermaid_plugin_config = full_config.get("diagrams", {}).get("mermaid", {})
     global_config_path = mermaid_plugin_config.get("global_config")
     
-    mermaid_config = load_global_mermaid_config(global_config_path)
+    config_dir = full_config.get("_config_dir", os.getcwd())
+    mermaid_config = load_global_mermaid_config(global_config_path, config_dir)
 
     # 1.1 Merge Overrides from ktl-myst-plugin.yml
     # The configuration in ktl-myst-plugin.yml (mermaid_plugin_config) should override defaults.

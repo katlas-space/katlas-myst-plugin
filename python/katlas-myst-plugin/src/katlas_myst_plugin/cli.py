@@ -32,6 +32,7 @@ def main():
     group.add_argument("--transform") 
     group.add_argument("--directive") 
     parser.add_argument("--format", default="json")
+    parser.add_argument("--config-dir", help="Base directory to search for config", default=None)
     
     args, unknown = parser.parse_known_args()
 
@@ -56,12 +57,11 @@ def main():
     # 2. Transform Handling (stdin -> stdout)
     elif args.transform:
         # Load global config once
-        config = load_config()
+        config = load_config(args.config_dir)
         
-        # Verify environment (pass the repo root if we can infer it, or just rely on CWD/Config)
-        # Using CWD is usually fine for the project config.
-        # But for environment.yml, likely next to myst.yml
-        check_environment(config, base_path=os.getcwd())
+        # Verify environment 
+        env_base = config.get("_config_dir") or os.getcwd()
+        check_environment(config, base_path=env_base)
 
         try:
             input_data = sys.stdin.read()

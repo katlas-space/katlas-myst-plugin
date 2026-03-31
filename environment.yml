@@ -1,4 +1,4 @@
-name: ktl-test-env
+name: ktl-env
 channels:
   - conda-forge
   - defaults
