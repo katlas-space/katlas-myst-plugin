@@ -37,9 +37,9 @@ def run_css_transform(data, config):
     }
 
     # Inject at the beginning of children, or end? 
-    # Usually appending to children is safe.
-    # if "children" in data:
-    #     data["children"].append(style_node)
+    # Appending to children ensures it's available in the document.
+    if "children" in data:
+        data["children"].insert(0, style_node)
     
     # print("[ktl-myst-plugin] Injected ktl-style.css", file=sys.stderr)
     return data

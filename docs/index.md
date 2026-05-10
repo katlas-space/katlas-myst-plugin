@@ -1,61 +1,46 @@
-# Katlas MyST Plugin
+# Getting Started
 
-Welcome to the documentation for the **Katlas MyST Plugin**.
+Welcome to the **Katlas MyST Plugin** documentation. This plugin enhances your MyST documentation portal with theme-aware diagrams and unified styling.
 
-## Features
+## 🏁 Quick Start
 
-- **Mermaid Diagrams**: Enhanced rendering with global configuration and styling.
-- **Unified Architecture**: Single plugin handles multiple features.
+The simplest way to use the plugin is via `pip`:
 
-### Prerequisites
+1.  **Install the plugin**:
+    ```bash
+    pip install katlas-myst-plugin
+    ```
 
--   **Conda**: Required for environment management.
--   **MyST CLI**: The plugin is designed to work with `myst`.
-
-### Setup with Conda (Recommended)
-
-The plugin works best when installed in a dedicated Conda environment. This allows the plugin to automatically manage its own dependencies.
-
-1.  **Create an `environment.yml`** in your project root:
+2.  **Enable in `myst.yml`**:
     ```yaml
-    name: ktl-env
-    channels:
-      - conda-forge
-      - defaults
-    dependencies:
-      - python=3.11
-      - pip
-      - pip:
+    project:
+      plugins:
         - katlas-myst-plugin
     ```
 
-2.  **Create the environment**:
-    ```bash
-    conda env create -f environment.yml
-    ```
+---
 
-3.  **Configure the Plugin**:
-    Create or update `ktl-myst-plugin.yml` to point to this environment:
-    ```yaml
-    python:
-      environment: ktl-env
-      manage: auto
-    ```
+## 🛠️ Advanced Usage Patterns
 
-This setup ensures that even if you run `myst build` from a different environment, the plugin will automatically switch to `ktl-env` to execute its logic.
+For professional projects requiring robust CI/CD or custom environment management, we recommend using the **Wrapper Pattern**.
 
-## Usage
+### 1. The Wrapper Pattern
+Copy the `ktl-myst-plugin.py` script from the repository into your project root. This allows you to:
+- Use specific Python environments.
+- Support **Bundled Mode** (no package installation required on CI).
 
-Add `ktl-myst-plugin.py` wrapper to your project root and configure `myst.yml`.
+### 2. Bundled Mode (Zero-Dependency CI)
+Drawing from the [gitinspector-rs](https://github.com/softmentor/gitinspector-rs) implementation, you can bundle the plugin source directly:
 
-```yaml
-project:
-  plugins:
-    - ./ktl-myst-plugin.py
-```
+1.  Create a `plugins/` directory in your documentation root.
+2.  Copy the `katlas_myst_plugin` package directory into `plugins/`.
+3.  Add the `ktl-myst-plugin.py` wrapper to your project root.
+4.  The wrapper will automatically detect the local source and use it, ensuring your CI build is fast and reliable without needing external repository access.
 
-## Documentation
+---
 
--   [Configuration Guide](configuration.md): Learn about configuration precedence and options.
--   [Architecture & Design](architecture.md): Understand the plugin's internal structure and design.
--   [Contributing Guide](contributing.md): How to set up development environment and submit changes.
+## 📚 Documentation
+
+- [**Architecture & Design**](architecture.md): Understand the "Thin Wrapper & Pluggable Core" design.
+- [**Configuration Guide**](configuration.md): Learn about configuration precedence (Local > World > Default).
+- [**Contributing**](contributing.md): Setup your local development environment.

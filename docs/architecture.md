@@ -13,20 +13,27 @@ The Katlas MyST Plugin follows a **"Thin Wrapper & Pluggable Core"** architectur
 ```mermaid
 graph TD
     MyST[MyST Build Process] -->|Executes| Wrapper["Wrapper Script <br> (ktl-myst-plugin.py)"]
-    Wrapper -->|Checks/Activates| Env["Conda Environment <br> (ktl-env)"]
-    Env -->|Runs| CLI["Plugin CLI <br> (katlas_myst_plugin.cli)"]
+    MyST -->|Direct Call| Installed["Installed Package <br> (katlas-myst-plugin)"]
+    
+    Wrapper -->|Priority 1: Bundled| Bundled["Local Source <br> (plugins/katlas_myst_plugin)"]
+    Wrapper -->|Priority 2: Installed| Installed
+    
+    Bundled --> CLI["Plugin CLI <br> (katlas_myst_plugin.cli)"]
+    Installed --> CLI
+    
     CLI -->|Dispatches| Plugins{Plugins}
     Plugins -->|Mermaid| Mermaid[Mermaid Plugin]
-    Plugins -->|Widgets| Widgets[Widget Plugin]
+    Plugins -->|CSS| CSS[CSS Plugin]
 ```
 
 ## detailed Components
 
 ### 1. Thin Wrappers
 Located in `wrappers/`, these scripts (e.g., `ktl-myst-plugin.py`) are minimal. They:
--   Check if the correct Conda environment (`ktl-env`) is active.
--   If not, they verify if the `katlas-myst-plugin` package is installed.
--   They delegate execution to the `katlas_myst_plugin.cli` entry point.
+-   **Auto-detect Source**: Prioritize a local `plugins/katlas_myst_plugin` directory if it exists (Bundled Mode).
+-   **Fallback to Installed**: Attempt to import the package from the current Python environment.
+-   **Zero-Overhead**: No mandatory environment switching, keeping build times fast.
+-   **Error Handling**: Provide clear instructions if dependencies (`pyyaml`, `jsonschema`) are missing.
 
 ### 2. Core Package
 Located in `python/katlas-myst-plugin/src/katlas_myst_plugin/`.

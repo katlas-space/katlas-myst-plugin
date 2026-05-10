@@ -6,6 +6,7 @@ import os
 from .core.config import load_config, log
 from .core.environment import check_environment
 from .plugins.mermaid.main import run_mermaid_transform
+from .plugins.css.main import run_css_transform
 
 # Definition of the plugin capabilities
 PLUGIN_SPEC = {
@@ -69,8 +70,11 @@ def main():
                 data = json.loads(input_data)
                 
                 if args.transform == 'katlas-mermaid':
-                    result = run_mermaid_transform(data, config)
-                    print(json.dumps(result))
+                    # 1. Mermaid Transformation
+                    data = run_mermaid_transform(data, config)
+                    # 2. CSS Injection
+                    data = run_css_transform(data, config)
+                    print(json.dumps(data))
                 else:
                     # Unknown transform
                     print(json.dumps(data))

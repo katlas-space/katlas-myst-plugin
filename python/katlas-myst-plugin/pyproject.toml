@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "katlas-myst-plugin"
-version = "0.1.0"
+version = "0.0.1"
 description = "Katlas MyST Plugin Python support"
 authors = [{name = "Katlas Team", email = "dev@katlas.io"}]
 readme = "README.md"

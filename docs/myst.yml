@@ -16,7 +16,6 @@ extends:
 site:
   template: book-theme
   options:
-    style: ../python/katlas-myst-plugin/src/katlas_myst_plugin/plugins/mermaid/assets/ktl-mermaid.css
     favicon: assets/images/ktl-logo-v1.png
     logo: assets/images/ktl-logo-v1.png
     folders: false

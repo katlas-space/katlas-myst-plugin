@@ -1,36 +1,42 @@
 #!/usr/bin/env python3
 import sys
 import os
-import subprocess
-import shutil
 
 # This is a thin wrapper script for the Katlas MyST Plugin.
 # Its purpose is to bootstrap the environment and execute the installed plugin.
 
-def is_venv_active():
-    return sys.prefix != sys.base_prefix or hasattr(sys, "real_prefix") or os.environ.get("CONDA_DEFAULT_ENV")
-
 def main():
-    # 1. Check Environment
-    # We ideally want to be running inside the project's configured environment.
-    # But this script is the entry point, MyST calls it.
+    # 1. Local Source Support
+    # If we find the source code relative to this script, we prioritize it.
+    # This enables "Bundled" mode (useful for development and self-contained projects).
+    script_dir = os.path.dirname(os.path.abspath(__file__))
     
+    # Check common locations for the bundled package
+    local_source_paths = [
+        os.path.join(script_dir, "plugins"),
+        os.path.join(script_dir, "katlas_myst_plugin"), # If someone copied the package directly
+        os.path.join(script_dir, "..", "python", "katlas-myst-plugin", "src"), # Dev mode
+    ]
+    
+    for path in local_source_paths:
+        if os.path.exists(path):
+            sys.path.insert(0, path)
+            break
+
+    # 2. Execute the Plugin
     try:
         from katlas_myst_plugin.cli import main as cli_main
-    except ImportError:
-        # Plugin not found.
-        # Check if we are in a virtual environment
-        if not is_venv_active():
-            print("[ktl-myst-plugin] ERROR: The 'katlas-myst-plugin' package is not found and no virtual environment seems active.", file=sys.stderr)
-            print("[ktl-myst-plugin] Please activate your environment: `conda activate ktl-env` or `source venv/bin/activate`", file=sys.stderr)
-            sys.exit(1)
-        else:
-             print(f"[ktl-myst-plugin] ERROR: The 'katlas-myst-plugin' package is not installed in the current environment ({sys.executable}).", file=sys.stderr)
-             print("[ktl-myst-plugin] Please install it: `pip install katlas-myst-plugin`", file=sys.stderr)
-             sys.exit(1)
-
-    # 2. Execute Code Plugin
-    cli_main()
+        cli_main()
+    except ImportError as e:
+        print(f"[ktl-myst-plugin] ERROR: The 'katlas-myst-plugin' package or its dependencies (pyyaml, jsonschema) are not found.", file=sys.stderr)
+        print(f"[ktl-myst-plugin] Debug: {str(e)}", file=sys.stderr)
+        print("[ktl-myst-plugin] Please ensure dependencies are installed: `pip install pyyaml jsonschema`", file=sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        print(f"[ktl-myst-plugin] CRITICAL ERROR: {str(e)}", file=sys.stderr)
+        import traceback
+        traceback.print_exc(file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
