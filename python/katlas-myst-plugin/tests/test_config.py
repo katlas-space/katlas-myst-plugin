@@ -14,6 +14,8 @@ def test_load_config_success(tmp_path):
     
     # Run
     loaded = load_config(base_path=str(tmp_path))
+    # Pop internal key before comparison
+    loaded.pop("_config_dir", None)
     assert loaded == config_data
 
 def test_load_config_missing(tmp_path):

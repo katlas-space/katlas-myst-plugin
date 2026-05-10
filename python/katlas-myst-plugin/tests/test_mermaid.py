@@ -17,7 +17,7 @@ SAMPLE_CODE_BLOCK = {
 
 def test_transform_mermaid_node_single():
     """Test transforming a mermaid node (single render)."""
-    config = {"theme": "default"}
+    config = {"theme": "default", "fontFamily": "Inter"}
     settings = {"dualRender": False}
     
     nodes = transform_nodes(SAMPLE_MERMAID_NODE, config, settings)
@@ -27,17 +27,19 @@ def test_transform_mermaid_node_single():
 
 def test_transform_mermaid_node_dual():
     """Test transforming a mermaid node (dual render)."""
-    config = {"theme": "default"}
+    config = {"theme": "default", "fontFamily": "Inter"}
     settings = {"dualRender": True}
     
     nodes = transform_nodes(SAMPLE_MERMAID_NODE, config, settings)
-    assert len(nodes) == 2
-    # Check classes
-    # Wait, create_mermaid_node wraps in container div if extra_class provided
+    assert len(nodes) == 1
     assert nodes[0]["type"] == "container"
-    assert nodes[0]["class"] == "mermaid-light"
-    assert nodes[1]["type"] == "container"
-    assert nodes[1]["class"] == "mermaid-dark"
+    assert nodes[0]["class"] == "katlas-mermaid-dual-container"
+    
+    # Check children
+    children = nodes[0]["children"]
+    assert len(children) == 2
+    assert children[0]["class"] == "mermaid-light"
+    assert children[1]["class"] == "mermaid-dark"
 
 def test_transform_code_block():
     """Test transforming a code block with lang=mermaid."""
@@ -55,7 +57,7 @@ def test_config_merging():
         "type": "mermaid",
         "value": "---\nconfig:\n  theme: dark\n---\ngraph TD"
     }
-    global_config = {"theme": "default", "look": "handDrawn"}
+    global_config = {"theme": "default", "look": "handDrawn", "fontFamily": "Inter"}
     
     # We can inspect the output value to see if 'handDrawn' persisted and 'dark' overrode 'default'
     # The output value is a string with YAML frontmatter.
