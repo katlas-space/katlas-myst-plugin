@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "katlas-myst-plugin"
-version = "0.0.1"
+version = "0.0.2"
 description = "Katlas MyST Plugin Python support"
 authors = [{name = "Katlas Team", email = "dev@katlas.io"}]
 readme = "README.md"
@@ -24,4 +24,4 @@ dev = [
 ]
 
 [tool.setuptools.package-data]
-"katlas_myst_plugin" = ["static/*"]
+"katlas_myst_plugin" = ["plugins/mermaid/assets/*", "plugins/mermaid/*.json"]

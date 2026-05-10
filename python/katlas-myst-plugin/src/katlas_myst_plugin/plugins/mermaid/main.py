@@ -101,6 +101,17 @@ def create_mermaid_node(original_node, config, extra_class):
             else:
                 merged_config["themeVariables"] = new_vars
 
+    # 1.1 Inject themeCSS (Safe for MyST)
+    # We load the CSS and inject it into the mermaid config itself.
+    # This keeps it scoped to the diagram and avoids the visible text issue in MyST.
+    from ..css.main import get_css_content
+    css_content = get_css_content()
+    if css_content:
+        # Wrap CSS for themeCSS if needed, or just append. 
+        # Mermaid's themeCSS is a string.
+        existing_css = merged_config.get("themeCSS", "")
+        merged_config["themeCSS"] = f"{existing_css}\n{css_content}"
+
     # Restore Validation
     try:
         schema = get_schema()
