@@ -14,14 +14,13 @@ To set up your development environment, follow these steps:
 
 2.  **Create a virtual environment (Recommended):**
     ```bash
-    conda create -n ktl-myst-plugin python=3.11
-    conda activate ktl-myst-plugin
+    uv venv
+    source .venv/bin/activate
     ```
 
 3.  **Install dependencies:**
     ```bash
-    pip install -e .[dev]
-    pip install pytest pytest-mock
+    uv pip install -e "python/katlas-myst-plugin[dev]"
     ```
 
 ## Running Tests
@@ -29,7 +28,7 @@ To set up your development environment, follow these steps:
 We use `pytest` for unit testing. To run the test suite:
 
 ```bash
-pytest python/katlas-myst-plugin
+uv run pytest python/katlas-myst-plugin
 ```
 
 Ensure all tests pass before submitting your changes.

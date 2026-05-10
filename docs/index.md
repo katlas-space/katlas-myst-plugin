@@ -4,11 +4,11 @@ Welcome to the **Katlas MyST Plugin** documentation. This plugin enhances your M
 
 ## 🏁 Quick Start
 
-The simplest way to use the plugin is via `pip`:
+The simplest way to use the plugin is via **uv**:
 
 1.  **Install the plugin**:
     ```bash
-    pip install katlas-myst-plugin
+    uv pip install katlas-myst-plugin
     ```
 
 2.  **Enable in `myst.yml`**:

@@ -6,17 +6,22 @@ A **mystmd** (Jupyter Book v2) plugin that integrates Katlas-specific features, 
 
 This plugin can be used in three ways, depending on your project needs:
 
-### A. Global/Local Installation (Recommended for Users)
-1. Install the package:
-   ```bash
-   pip install katlas-myst-plugin
-   ```
-2. Enable it in your `myst.yml`:
-   ```yaml
-   project:
-     plugins:
-       - katlas-myst-plugin
-   ```
+### A. Global/Local Installation (Recommended)
+Using **uv** (recommended for speed and reliability) or **pip**:
+```bash
+# Using uv
+uv pip install katlas-myst-plugin
+
+# Using pip
+pip install katlas-myst-plugin
+```
+
+Enable it in your `myst.yml`:
+```yaml
+project:
+  plugins:
+    - katlas-myst-plugin
+```
 
 ### B. Project Wrapper (Recommended for Custom Environments)
 Use the lightweight `ktl-myst-plugin.py` wrapper in your project root to handle environment bootstrapping.
@@ -28,34 +33,26 @@ Use the lightweight `ktl-myst-plugin.py` wrapper in your project root to handle 
        - ./ktl-myst-plugin.py
    ```
 
-### C. Bundled Source (Recommended for Professional CI/CD)
-For zero-dependency CI (no private repo access needed), you can bundle the source directly.
+### C. Bundled Source (Legacy/Offline)
+For zero-dependency environments, you can bundle the source directly.
 1. Copy the `katlas_myst_plugin` source directory into a `plugins/` folder in your project.
 2. Use the `ktl-myst-plugin.py` wrapper. It will automatically detect and prioritize the local source.
 
-## 🎨 Enhanced Mermaid Support
+## 🏗️ Development
 
-The plugin provides a `ktl:mermaid` directive and document transformations to support:
-- **Dual Rendering**: Generates both light and dark mode SVGs.
-- **Theme-Aware Toggling**: Automatically switches diagrams based on your site theme.
-- **Global Configuration**: Set defaults in `myst.yml`.
+We use `uv` for dependency management. To set up your local development environment:
 
-### Configuration Example (`myst.yml`)
+```bash
+# Clone the repository
+git clone https://github.com/katlas-space/katlas-myst-plugin.git
+cd katlas-myst-plugin
 
-```yaml
-site:
-  options:
-    mermaid:
-      theme: forest
-      themeVariables:
-        fontFamily: "Inter, sans-serif"
+# Install in editable mode with dev dependencies
+uv pip install -e "python/katlas-myst-plugin[dev]"
+
+# Run tests
+uv run pytest python/katlas-myst-plugin
 ```
-
-## 🏗️ Structure
-
-- `python/`: Core Python package implementation.
-- `wrappers/`: Bootstrap scripts for various environments.
-- `docs/`: Full documentation portal.
 
 ## 📖 Further Reading
 
