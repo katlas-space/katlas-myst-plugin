@@ -11,8 +11,7 @@ build-js:
 	cd packages/katlas-myst-plugin && npm run build
 
 check-python:
-	python3 -m pip install -e ./python/katlas-myst-plugin --break-system-packages
-	python3 -m pip install jsonschema pyyaml --break-system-packages
+	python3 -m pip install -e ./python/katlas-myst-plugin[dev]
 
 build: build-js check-python
 

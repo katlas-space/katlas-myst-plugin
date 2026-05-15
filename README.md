@@ -47,7 +47,10 @@ We use `uv` for dependency management. To set up your local development environm
 git clone https://github.com/katlas-space/katlas-myst-plugin.git
 cd katlas-myst-plugin
 
-# Install in editable mode with dev dependencies
+# 1. Build and install both JS and Python plugins using Make
+make build
+
+# Alternatively, manually install the python dev dependencies
 uv pip install -e "python/katlas-myst-plugin[dev]"
 
 # Run tests
