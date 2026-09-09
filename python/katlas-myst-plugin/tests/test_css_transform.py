@@ -1,29 +1,22 @@
-import pytest
-from katlas_myst_plugin.plugins.css.main import run_css_transform
+from katlas_myst_plugin.plugins.css.main import run_css_transform, get_css_content
 
-def test_run_css_transform_ast():
-    """Test that the CSS transform injects the correct node type into the AST."""
-    # Mock data (AST root)
+
+def test_run_css_transform_is_noop():
+    """CSS injection into the AST is deliberately disabled (MyST escapes raw
+    <style> tags); the CSS reaches diagrams via themeCSS inside the mermaid
+    config instead. The transform must pass the tree through unchanged."""
     data = {
         "type": "root",
         "children": [
             {"type": "heading", "depth": 1, "children": [{"type": "text", "value": "Test"}]}
-        ]
+        ],
     }
-    config = {}
-    
-    # Run transform
-    # Note: This will actually read the local ktl-mermaid.css
-    result = run_css_transform(data, config)
-    
-    # Verify injection
-    assert len(result["children"]) == 2
-    style_node = result["children"][0]
-    
-    # We want to ensure this is treated as RAW HTML and not text
-    assert style_node["type"] in ["html", "raw"]
-    if style_node["type"] == "raw":
-        assert style_node["format"] == "html"
-    
-    assert "<style>" in style_node["value"]
-    assert "</style>" in style_node["value"]
+    result = run_css_transform(data, {})
+    assert result is data
+    assert len(result["children"]) == 1
+
+
+def test_get_css_content_reads_bundled_asset():
+    css = get_css_content()
+    assert css is not None
+    assert ".mermaid" in css

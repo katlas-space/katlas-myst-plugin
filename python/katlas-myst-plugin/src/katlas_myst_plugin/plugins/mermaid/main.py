@@ -16,17 +16,27 @@ def log(msg):
     print(f"[KatlasMermaidPlugin] {msg}", file=sys.stderr)
 
 def get_schema():
-    """Fetch and cache the Mermaid config schema."""
+    """Return the cached Mermaid config schema, if any.
+
+    Builds are network-free by default: fetching the schema per invocation
+    (MyST spawns this plugin once per page transform) added a network call to
+    every page build and made CI flaky. Set KTL_MYST_SCHEMA_FETCH=1 to fetch
+    and cache the schema once; without a cache, validation is skipped
+    (mermaid itself validates config at render time).
+    """
     script_dir = os.path.dirname(os.path.abspath(__file__))
     cache_path = os.path.join(script_dir, SCHEMA_CACHE_FILE)
-    
+
     if os.path.exists(cache_path):
         try:
             with open(cache_path, 'r') as f:
                 return json.load(f)
         except:
-            log("Invalid cache, re-fetching schema.")
-    
+            log("Invalid schema cache; ignoring it.")
+
+    if os.environ.get("KTL_MYST_SCHEMA_FETCH") != "1":
+        return None
+
     try:
         log(f"Fetching schema from {SCHEMA_URL}...")
         with urllib.request.urlopen(SCHEMA_URL) as response:
