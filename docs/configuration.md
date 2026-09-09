@@ -31,9 +31,22 @@ When rendering a diagram, the plugin merges configuration from three sources in 
         ```
     *   Overrides the default package configuration.
 
-3.  **Default Package Config** (Lowest Priority)
-    *   The fallback configuration bundled with the plugin itself (`default_mermaid_config.yml`).
-    *   Sets sensible defaults (e.g., `theme: default`, `fontFamily`, `layout: elk`).
+3.  **Global Mermaid Config File** (via `diagrams.mermaid.global_config` in
+    `ktl-myst-plugin.yml`, resolved relative to the directory the config file
+    was found in).
+
+4.  **Default Package Config** (Lowest Priority)
+    *   The fallback configuration bundled with the plugin itself.
+    *   Sets sensible defaults (`theme: default`, `fontFamily`). It deliberately
+        sets **no `layout`**: `layout: elk` only works client-side when the site
+        theme bundles `@mermaid-js/layout-elk` — without it, diagrams render
+        empty. Opt in via config only if your theme registers the ELK loader.
+
+## Config Discovery
+
+The javascript plugin searches for `ktl-myst-plugin.yml` in the build
+directory and then walks upward (up to 4 parent levels). In a multi-project
+estate, one config at the estate root serves every project.
 
 ## Mermaid Configuration References
 

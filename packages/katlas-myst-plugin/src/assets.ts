@@ -6,12 +6,10 @@
 
 export const DEFAULT_MERMAID_CONFIG: Record<string, unknown> = {
   // https://mermaid.js.org/config/schema-docs/config.html
-  layout: 'elk',
+  // No layout key: client-side mermaid only supports 'elk' when the theme
+  // bundles @mermaid-js/layout-elk (the katlas book theme does not — elk
+  // rendered empty). Mermaid's default is dagre.
   fontFamily: 'var(--mermaid-font-family)',
-  elk: {
-    mergeEdges: true,
-    nodePlacementStrategy: 'NETWORK_SIMPLEX',
-  },
   theme: 'default',
   themeVariables: {
     fontFamily: 'var(--mermaid-font-family)',

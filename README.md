@@ -1,59 +1,85 @@
 # Katlas MyST Plugin
 
-A **mystmd** (Jupyter Book v2) plugin that integrates Katlas-specific features, including enhanced Mermaid diagram support and theme-aware rendering.
+A **mystmd** (Jupyter Book v2) plugin that integrates Katlas-specific features, including enhanced Mermaid diagram support (dual light/dark theme-aware rendering) and the `ktl:mermaid` directive.
 
-## 🚀 Usage Patterns
+## Two variants — pick by build type
 
-This plugin can be used in three ways, depending on your project needs:
+| Variant | Runs | Use for |
+|---|---|---|
+| **JavaScript** (`packages/katlas-myst-plugin`) | **In-process** inside mystmd | **HTML/site builds — the default.** Zero extra processes; diagrams render client-side by the theme |
+| Python executable (`python/katlas-myst-plugin`) | One subprocess **per page transform, in parallel** | PDF/typst exports only, where diagrams must be pre-rendered |
 
-### A. Global/Local Installation (Recommended)
-Using **uv** (recommended for speed and reliability) or **pip**:
+> ⚠️ **Never enable the executable python variant for site builds of a large
+> project.** mystmd spawns executable plugins once per page transform, in
+> parallel — on a 165-page project this reached ~250 concurrent processes and
+> over 6GB of memory, hanging the machine (2026-09-08 postmortem). The
+> javascript variant performs the same transform in-process at no measurable
+> memory cost. The python `manage: auto` conda bootstrapping is retired for
+> the same reason (`manage: manual` only).
+
+## 🚀 Usage
+
+### A. JavaScript plugin (recommended)
+
+Build the self-contained bundle and reference it from `myst.yml`:
+
 ```bash
-# Using uv
-uv pip install katlas-myst-plugin
-
-# Using pip
-pip install katlas-myst-plugin
+cd packages/katlas-myst-plugin && npx tsup   # emits dist/index.mjs (single file, deps bundled)
 ```
 
-Enable it in your `myst.yml`:
 ```yaml
 project:
   plugins:
-    - katlas-myst-plugin
+    - ./ktl-myst-plugin.mjs   # copy of dist/index.mjs placed in your project
 ```
 
-### B. Project Wrapper (Recommended for Custom Environments)
-Use the lightweight `ktl-myst-plugin.py` wrapper in your project root to handle environment bootstrapping.
-1. Copy `wrappers/ktl-myst-plugin.py` to your project root.
-2. Enable it in `myst.yml`:
+The bundle has no runtime dependencies — copy `dist/index.mjs` anywhere
+(e.g. a documentation monorepo root shared by many projects) and reference it
+with a relative path.
+
+**Config discovery**: the plugin looks for `ktl-myst-plugin.yml` in the build
+directory and then walks upward (up to 4 levels), so per-project builds inside
+a multi-project estate find the estate-root config.
+
+### B. Python executable (PDF/typst pre-rendering only)
+
+1. Copy `wrappers/ktl-myst-plugin.py` next to your project.
+2. Enable it in `myst.yml` **for the export build only**:
    ```yaml
    project:
      plugins:
        - ./ktl-myst-plugin.py
    ```
 
-### C. Bundled Source (Legacy/Offline)
-For zero-dependency environments, you can bundle the source directly.
-1. Copy the `katlas_myst_plugin` source directory into a `plugins/` folder in your project.
-2. Use the `ktl-myst-plugin.py` wrapper. It will automatically detect and prioritize the local source.
+## Mermaid notes
+
+- The transform emits **dual light/dark containers**
+  (`.mermaid-light` / `.mermaid-dark` inside `.katlas-mermaid-dual-container`)
+  toggled by CSS; labels/identifiers are hoisted to the wrapper so
+  cross-references keep working.
+- Config precedence: diagram frontmatter → `ktl-myst-plugin.yml`
+  (`diagrams.mermaid.*`) → `global_config` file → bundled defaults.
+- **`layout: elk` requires the site theme to bundle `@mermaid-js/layout-elk`.**
+  Without it, client-side mermaid renders an *empty* diagram (found 2026-09-09;
+  the katlas book theme does not bundle it). The default config therefore sets
+  no layout (mermaid's dagre default). Opt into elk via config only if your
+  theme registers the ELK layout loader.
+- Unlike the python variant, the javascript plugin does **not** fetch the
+  mermaid config schema from mermaid.js.org at build time — builds are
+  network-free by design (CI-safe); config validation is delegated to mermaid
+  itself at render time.
 
 ## 🏗️ Development
 
-We use `uv` for dependency management. To set up your local development environment:
-
 ```bash
-# Clone the repository
 git clone https://github.com/katlas-space/katlas-myst-plugin.git
 cd katlas-myst-plugin
 
-# 1. Build and install both JS and Python plugins using Make
-make build
+# JavaScript plugin
+cd packages/katlas-myst-plugin && npm install && npx tsup
 
-# Alternatively, manually install the python dev dependencies
+# Python plugin (uv recommended)
 uv pip install -e "python/katlas-myst-plugin[dev]"
-
-# Run tests
 uv run pytest python/katlas-myst-plugin
 ```
 
