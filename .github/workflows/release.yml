@@ -32,17 +32,14 @@ jobs:
           scope: '@katlas-space'
           cache: 'npm'
 
-      - name: Install dependencies
+      - name: Install dependencies (workspace root)
         run: npm ci
-        working-directory: packages/katlas-myst-plugin
 
       - name: Build
-        run: npm run build
-        working-directory: packages/katlas-myst-plugin
+        run: npm run build --prefix packages/katlas-myst-plugin
 
       - name: Test
-        run: npm test
-        working-directory: packages/katlas-myst-plugin
+        run: npm test --prefix packages/katlas-myst-plugin
 
       - name: Verify tag matches package.json version
         if: startsWith(github.ref, 'refs/tags/v')
