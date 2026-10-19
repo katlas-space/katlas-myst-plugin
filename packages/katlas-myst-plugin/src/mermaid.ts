@@ -19,12 +19,12 @@ import path from 'path';
 import yaml from 'js-yaml';
 import type {DirectiveSpec, TransformSpec, GenericNode, GenericParent} from 'myst-common';
 import {DEFAULT_MERMAID_CONFIG, KTL_MERMAID_CSS} from './assets.js';
-import type {KatlasMystPluginConfig} from './config.js';
+import type {PluginConfig} from './config.js';
 
 type Dict = Record<string, unknown>;
 
 function log(msg: string): void {
-  console.log(`[KatlasMermaidPlugin] ${msg}`);
+  console.log(`[mermaid-dual] ${msg}`);
 }
 
 /** Fill gaps in `destination` from `source` — destination (local) wins. */
@@ -184,7 +184,7 @@ function loadGlobalMermaidConfig(configPath: string | undefined, configDir: stri
   return deepCopy(DEFAULT_MERMAID_CONFIG);
 }
 
-export function runMermaidTransform(tree: GenericParent, pluginConfig: KatlasMystPluginConfig): GenericParent {
+export function runMermaidTransform(tree: GenericParent, pluginConfig: PluginConfig): GenericParent {
   const mermaidPluginConfig = (pluginConfig.diagrams?.mermaid ?? {}) as Dict;
   const configDir = pluginConfig._configDir ?? process.cwd();
   const mermaidConfig = loadGlobalMermaidConfig(
@@ -224,7 +224,7 @@ export function makeMermaidDirective(): DirectiveSpec {
   };
 }
 
-export function makeMermaidTransform(pluginConfig: KatlasMystPluginConfig): TransformSpec {
+export function makeMermaidTransform(pluginConfig: PluginConfig): TransformSpec {
   return {
     name: 'katlas-mermaid',
     doc: 'Theme-aware dual (light/dark) mermaid rendering',

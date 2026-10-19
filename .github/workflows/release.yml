@@ -1,0 +1,96 @@
+name: Release and Publish
+
+# Triggers:
+#   - Pushing a tag of the form v* (e.g. v0.1.0, v1.2.3) → builds, tests,
+#     creates a GitHub Release, attaches dist/index.mjs, and publishes to
+#     GitHub Packages under the @katlas-space scope.
+#   - Manual dispatch for dry-runs on main.
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write       # create GitHub Release + upload artifacts
+  packages: write       # publish to GitHub Packages (@katlas-space scope)
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          # Must match publishConfig.registry in package.json
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@katlas-space'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: packages/katlas-myst-plugin
+
+      - name: Build
+        run: npm run build
+        working-directory: packages/katlas-myst-plugin
+
+      - name: Test
+        run: npm test
+        working-directory: packages/katlas-myst-plugin
+
+      - name: Verify tag matches package.json version
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          TAG_VERSION="${GITHUB_REF#refs/tags/v}"
+          PKG_VERSION=$(node -p "require('./packages/katlas-myst-plugin/package.json').version")
+          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+            echo "::error::Tag v$TAG_VERSION does not match package.json version $PKG_VERSION"
+            exit 1
+          fi
+          echo "Tag matches package.json: v$PKG_VERSION"
+
+      - name: Create GitHub Release with artifact
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: packages/katlas-myst-plugin/dist/index.mjs
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          body: |
+            MyST plugin — dual-render mermaid + Obsidian wikilink-embed transclusion.
+
+            ## Install (GitHub Packages, npm)
+
+            Add to `.npmrc` in your project:
+            ```
+            @katlas-space:registry=https://npm.pkg.github.com
+            ```
+            Then:
+            ```
+            npm install @katlas-space/mystmd-plugin-dual-mermaid-and-embed@${{ github.ref_name }}
+            ```
+
+            ## Load directly from this release URL (no install)
+
+            In your `myst.yml`:
+            ```yaml
+            project:
+              plugins:
+                - https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/index.mjs
+            ```
+            mystmd fetches and caches the plugin after first use — offline builds work from then on.
+
+            See `README.md` for configuration.
+
+      - name: Publish to GitHub Packages
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: npm publish
+        working-directory: packages/katlas-myst-plugin
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

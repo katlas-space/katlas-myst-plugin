@@ -1,16 +1,45 @@
 {
-    "name": "katlas-myst-plugin",
+    "name": "@katlas-space/mystmd-plugin-dual-mermaid-and-embed",
     "version": "0.1.0",
+    "description": "MyST (mystmd) plugin: light/dark dual-render mermaid diagrams + Obsidian-style ![[path#heading]] wikilink-embed transclusion. Composable with any mystmd project; both features toggle independently.",
     "type": "module",
     "main": "dist/index.mjs",
     "types": "dist/index.d.ts",
     "files": [
-        "dist"
+        "dist",
+        "README.md",
+        "LICENSE"
     ],
+    "keywords": [
+        "mystmd",
+        "myst",
+        "mermaid",
+        "obsidian",
+        "wikilink",
+        "transclusion",
+        "embed",
+        "dark-mode",
+        "markdown"
+    ],
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/katlas-space/katlas-myst-plugin.git",
+        "directory": "packages/katlas-myst-plugin"
+    },
+    "bugs": {
+        "url": "https://github.com/katlas-space/katlas-myst-plugin/issues"
+    },
+    "homepage": "https://github.com/katlas-space/katlas-myst-plugin#readme",
+    "publishConfig": {
+        "registry": "https://npm.pkg.github.com",
+        "access": "public"
+    },
     "scripts": {
         "build": "tsup",
         "clean": "rm -rf dist",
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "node ../../tests/wikilink-embed.test.mjs",
+        "prepublishOnly": "npm run clean && npm run build && npm test"
     },
     "dependencies": {
         "js-yaml": "^4.1.0",
@@ -19,6 +48,7 @@
     "devDependencies": {
         "@types/js-yaml": "^4.0.5",
         "@types/node": "^18.0.0",
+        "esbuild": "^0.24.0",
         "tsup": "^8.0.0",
         "typescript": "^5.0.0",
         "myst-cli": "latest"
